@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:basic_template/src/core/utils/logger.dart'; // Настройка логгера
+import '../features/feature_2/presentation/pages/login_screen.dart';
 import 'app.dart';
 
 Future<void> bootstrap() async {
@@ -28,4 +29,15 @@ Future<void> initializeServices() async {
   AppLogger.logInfo('Initializing services...');
 }
 
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Waiter App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: LoginScreen(), // Стартуем с экрана авторизации
+    );
+  }
+}

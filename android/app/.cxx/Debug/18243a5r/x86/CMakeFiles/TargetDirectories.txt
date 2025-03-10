@@ -1,0 +1,2 @@
+/Users/arturkaratkevich/FlutterProjects/app_waiter/android/app/.cxx/Debug/18243a5r/x86/CMakeFiles/edit_cache.dir
+/Users/arturkaratkevich/FlutterProjects/app_waiter/android/app/.cxx/Debug/18243a5r/x86/CMakeFiles/rebuild_cache.dir
