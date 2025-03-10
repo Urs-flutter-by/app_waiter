@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:basic_template/src/app/constants/error_messages.dart';
+import '../../utils/logger.dart';
 
 abstract class BaseRepository {
   final Dio dio;
@@ -50,12 +51,34 @@ abstract class BaseRepository {
       if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
         return response.data as Map<String, dynamic>;
       } else {
+        AppLogger.logError('HTTP error: $errorMessage', response.statusCode);
         throw Exception(errorMessage);
       }
-    } catch (error) {
+    } on DioException catch (e) {
+      // Логируем ошибку Dio
+      AppLogger.logError(
+        'Dio error: ${ErrorMessages.requestError}',
+        e.message,
+        e.stackTrace,
+      );
+
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.connectionError) {
+        throw Exception(ErrorMessages.internetError,);
+      }
+
+      rethrow;
+    } catch (error, stackTrace) {
+      // Логируем другие ошибки
+      AppLogger.logError(
+        'Unexpected error: ${ErrorMessages.requestError}',
+        error,
+        stackTrace,
+      );
+
       throw Exception('$ErrorMessages.requestError: $error');
     }
   }
 }
-
-
