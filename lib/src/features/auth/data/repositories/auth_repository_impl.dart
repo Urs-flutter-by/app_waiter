@@ -8,14 +8,17 @@ class AuthRepositoryImpl extends BaseRepository implements AuthRepository {
   AuthRepositoryImpl({required super.dio});
 
   @override
-  Future<Waiter> signIn(String username, String password, String? restaurantName) async {
+  Future<Waiter> signIn(
+      String username, String password, String restaurantId) async {
     final requestData = {
       'username': username,
       'password': password,
-      if (restaurantName != null) 'restaurantName': restaurantName,
+      'restaurantId': restaurantId,
     };
-    final response = await postRequest('/auth/login', requestData); // Используем метод из BaseRepository
-    final waiterModel = WaiterModel.fromJson(response);
+    final response = await postRequest('http://localhost:3002/auth/login',
+        requestData); // Используем метод из BaseRepository
+    //final waiterModel = WaiterModel.fromJson(response);
+    final waiterModel = WaiterModel.fromJson(response['waiter']);
     return Waiter(
       id: waiterModel.id,
       username: waiterModel.username,

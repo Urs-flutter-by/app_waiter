@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:basic_template/src/core/utils/logger.dart'; // Настройка логгера
-import '../features/feature_2/presentation/pages/login_screen.dart';
-import 'app.dart';
+//import '../features/auth/presentation/pages/login_screen.dart';
+import '../features/qr_scan/presentation/pages/qr_scan_screen.dart';
+//import 'app.dart';
 
 Future<void> bootstrap() async {
   // 1. Инициализация FlutterBinding
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Waiter App',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: LoginScreen(), // Стартуем с экрана авторизации
+      home: const QRScanScreen(), // Стартуем с экрана авторизации
     );
   }
 }

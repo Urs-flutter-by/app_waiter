@@ -18,10 +18,12 @@ abstract class BaseRepository {
   // Общий метод для выполнения POST-запросов
   Future<Map<String, dynamic>> postRequest(
       String url, Map<String, dynamic> data) async {
+
     return _processResponse(
       () async => dio.post(url, data: data),
       ErrorMessages.failedSendData,
     );
+
   }
 
   // Общий метод для выполнения PUT-запросов

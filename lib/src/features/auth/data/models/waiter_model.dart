@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 part 'waiter_model.g.dart';
 
-// Модель Официант для общения с сервером (формат JSON)
+// Модель идентификации Официанта для общения с сервером (формат JSON)
 @JsonSerializable()
 class WaiterModel {
   final String id;

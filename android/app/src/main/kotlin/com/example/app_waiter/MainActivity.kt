@@ -1,4 +1,4 @@
-package com.example.basic_template
+package com.example.app_waiter
 
 import io.flutter.embedding.android.FlutterActivity
 

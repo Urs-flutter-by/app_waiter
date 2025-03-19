@@ -6,5 +6,5 @@ import '../entities/waiter.dart';
 // SignInUseCase - обращается к этому интерфейсу
 abstract class AuthRepository {
   Future<Waiter> signIn(
-      String username, String password, String? restaurantName);
+      String username, String password, String restaurantId);
 }

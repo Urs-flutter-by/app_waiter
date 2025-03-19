@@ -10,7 +10,7 @@ class SignInUseCase {
 
   SignInUseCase(this.repository);
 
-  Future<Waiter> call(String username, String password, String? restaurantName) async {
-    return await repository.signIn(username, password, restaurantName);
+  Future<Waiter> call(String username, String password, String restaurantId) async {
+    return await repository.signIn(username, password, restaurantId);
   }
 }
