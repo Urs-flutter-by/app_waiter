@@ -10,7 +10,7 @@ import '../providers/auth_provider.dart';
 class LoginScreen extends ConsumerWidget {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final String restaurantId; // Получаем из QR-кода
+  final String restaurantId;
 
   LoginScreen({super.key, required this.restaurantId});
 
@@ -26,44 +26,47 @@ class LoginScreen extends ConsumerWidget {
           children: [
             TextField(
               controller: _usernameController,
-              decoration: const InputDecoration(labelText: 'Логин'),
+              decoration: const InputDecoration(labelText: 'Username'),
             ),
             TextField(
               controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Пароль'),
+              decoration: const InputDecoration(labelText: 'Password'),
               obscureText: true,
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () async {
+              onPressed: authState.isLoading
+                  ? null // Отключаем кнопку, если идет загрузка
+                  : () async {
                 final notifier = ref.read(authProvider.notifier);
                 await notifier.signIn(
                   _usernameController.text,
                   _passwordController.text,
                   restaurantId,
                 );
-                final authState = ref.watch(authProvider);
-                if (authState.value?.waiter != null) {
-                  Navigator.push(
+                final updatedState = ref.read(authProvider);
+                if (updatedState.value?.waiter != null) {
+                  Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => const WelcomeScreen()),
+                    MaterialPageRoute(builder: (context) => const WelcomeScreen()),
                   );
                 }
               },
-              child: const Text('Войти'),
+              child: authState.isLoading
+                  ? const CircularProgressIndicator()
+                  : const Text('Sign In'),
             ),
             const SizedBox(height: 20),
             authState.when(
               data: (state) {
                 if (state.isInitial) {
-                  return const SizedBox.shrink(); // Ничего не показываем при начальном состоянии
+                  return const SizedBox.shrink();
                 }
                 return state.waiter != null
                     ? Text('Welcome, ${state.waiter!.username}!')
                     : const Text('Ошибка авторизации', style: TextStyle(color: Colors.red));
               },
-              loading: () => const CircularProgressIndicator(),
+              loading: () => const SizedBox.shrink(), // Убрали CircularProgressIndicator здесь
               error: (error, stack) {
                 if (error is DioException) {
                   if (error.response?.statusCode == 401) {
@@ -79,16 +82,16 @@ class LoginScreen extends ConsumerWidget {
                   } else {
                     return Text(
                       'Ошибка: ${error.message}',
-                      style: TextStyle(color: Colors.red),
+                      style: const TextStyle(color: Colors.red),
                     );
                   }
                 }
                 return Text(
                   'Неизвестная ошибка: $error',
-                  style: TextStyle(color: Colors.red),
+                  style: const TextStyle(color: Colors.red),
                 );
               },
-            )
+            ),
           ],
         ),
       ),
