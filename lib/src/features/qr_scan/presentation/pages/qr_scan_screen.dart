@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/logger.dart';
 import '../../../auth/presentation/pages/login_screen.dart';
 
+
 class QRScanScreen extends ConsumerStatefulWidget {
   const QRScanScreen({super.key});
 
@@ -30,7 +31,10 @@ class _QRScanScreenState extends ConsumerState<QRScanScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => LoginScreen(restaurantId: restaurantId),
+          builder: (context) => LoginScreen(restaurantId: 'rest_12345',),
+
+
+          //LoginScreen(restaurantId: restaurantId),
         ),
       );
     }
@@ -51,6 +55,7 @@ class _QRScanScreenState extends ConsumerState<QRScanScreen> {
                 style: TextStyle(fontSize: 20),
               ),
               const SizedBox(height: 20),
+
               // if (isScanning)
               //   SizedBox(
               //     height: 300,
@@ -86,6 +91,7 @@ class _QRScanScreenState extends ConsumerState<QRScanScreen> {
                 },
                 child: const Text('Сканировать QR-код'),
               ),
+
             ],
           ),
         ),

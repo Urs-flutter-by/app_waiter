@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/dio_provider.dart';
-import '../../../shift/data/models/hall_model.dart';
+import '../../../tables/data/models/hall_model.dart';
 import '../../../shift/data/models/shift_status.dart';
 import '../../../shift/domain/repositories/shift_repository.dart';
 import '../../../shift/presentation/providers/shift_provider.dart';
+import '../../../tables/data/repositories/table_repository_impl.dart';
+import '../../../tables/presentation/providers/table_provider.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/waiter.dart';
 import '../../domain/repositories /auth_repository.dart';
@@ -19,21 +21,23 @@ final signInUseCaseProvider = Provider<SignInUseCase>((ref) {
 
 // диспетчер", который следит за состоянием авторизации (загрузка, успех, ошибка)
 // страница LoginScreen "слушает" authProvider
-final authProvider =
-    StateNotifierProvider<AuthNotifier, AsyncValue<AuthState>>((ref) {
+final authProvider = StateNotifierProvider<AuthNotifier, AsyncValue<AuthState>>((ref) {
   return AuthNotifier(
     ref.read(signInUseCaseProvider),
     ref.read(shiftRepositoryProvider),
+    ref.read(tableRepositoryProvider), // Добавили TableRepository
   );
 });
 
 // обновляет состояние по нажатию кнопки "Войти"
+
 class AuthNotifier extends StateNotifier<AsyncValue<AuthState>> {
   final SignInUseCase signInUseCase;
   final ShiftRepository shiftRepository;
+  final TableRepository tableRepository; // Добавили TableRepository
   bool _hasCheckedShift = false;
 
-  AuthNotifier(this.signInUseCase, this.shiftRepository)
+  AuthNotifier(this.signInUseCase, this.shiftRepository, this.tableRepository)
       : super(AsyncValue.data(AuthState.initial()));
 
   Future<void> signIn(String username, String password, String restaurantId) async {
@@ -56,7 +60,6 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthState>> {
     try {
       final shiftStatus = await shiftRepository.openShift(waiter.id, restaurantId);
       state = AsyncValue.data(AuthState.loggedIn(waiter, shiftStatus));
-      // Здесь можно добавить автоматический переход
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }
@@ -66,7 +69,23 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthState>> {
     state = const AsyncValue.loading();
     try {
       final currentState = state.value;
-      final halls = await shiftRepository.getHalls(restaurantId, waiter.id);
+      final halls = await tableRepository.getHalls(restaurantId, waiter.id); // Используем TableRepository
+      final updatedShiftStatus = ShiftStatus(
+        success: currentState?.shiftStatus?.success ?? true,
+        shiftOpen: currentState?.shiftStatus?.shiftOpen ?? false,
+        openedAt: currentState?.shiftStatus?.openedAt,
+        halls: halls,
+      );
+      state = AsyncValue.data(AuthState.loggedIn(waiter, updatedShiftStatus));
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+
+  Future<void> refreshHalls(Waiter waiter, String restaurantId) async {
+    try {
+      final currentState = state.value;
+      final halls = await tableRepository.getHalls(restaurantId, waiter.id); // Используем TableRepository
       final updatedShiftStatus = ShiftStatus(
         success: currentState?.shiftStatus?.success ?? true,
         shiftOpen: currentState?.shiftStatus?.shiftOpen ?? false,
@@ -79,7 +98,6 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthState>> {
     }
   }
 }
-
 
 class AuthState {
   final Waiter? waiter;

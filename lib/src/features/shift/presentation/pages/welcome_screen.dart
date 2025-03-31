@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
-import 'halls_screen.dart';
+import '../../../tables/presentation/pages/halls_screen.dart';
 
 class WelcomeScreen extends ConsumerWidget {
   const WelcomeScreen({super.key});
@@ -34,8 +34,10 @@ class WelcomeScreen extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+
                 Text('Добро пожаловать, ${state.waiter!.username}!'),
                 const SizedBox(height: 20),
+
                 if (state.isShiftOpen) ...[
                   Text('Смена открыта с ${state.openedAt ?? 'неизвестного времени'}'),
                   const SizedBox(height: 20),

@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:basic_template/src/features/shift/data/models/table_model.dart';
+import 'package:basic_template/src/features/tables/data/models/table_model.dart';
 
 part 'hall_model.g.dart';
 

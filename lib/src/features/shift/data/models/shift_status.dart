@@ -1,7 +1,7 @@
 // lib/src/features/shift/data/models/shift_status.dart
 import 'package:json_annotation/json_annotation.dart';
 
-import 'hall_model.dart';
+import '../../../tables/data/models/hall_model.dart';
 
 part 'shift_status.g.dart';
 
