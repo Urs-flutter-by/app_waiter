@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import '../../../../core/utils/notification_handler.dart';
+import '../../utils.dart';
+import '../widgets/halls_tab_bar.dart';
+import '../widgets/halls_page_view.dart';
 import '../../data/models/hall_model.dart';
-import '../../data/models/table_model.dart';
 import '../providers/halls_provider.dart';
-import '../widgets/hall_view.dart';
+
 
 class HallsScreen extends ConsumerStatefulWidget {
   const HallsScreen({super.key});
@@ -13,36 +16,46 @@ class HallsScreen extends ConsumerStatefulWidget {
   ConsumerState<HallsScreen> createState() => _HallsScreenState();
 }
 
-class _HallsScreenState extends ConsumerState<HallsScreen> {
+class _HallsScreenState extends ConsumerState<HallsScreen>
+    with TickerProviderStateMixin {
   List<HallModel> _halls = [];
   int _currentHallIndex = 0;
   final double _gridSize = 80.0;
   Map<String, Offset> _tablePositions = {};
   final Map<int, GlobalKey> _stackKeys = {};
-  late Box<Offset> _positionBox;
+  Box<Offset>? _positionBox; // Делаем опциональным
+  late NotificationHandler _notificationHandler;
+  TabController? _tabController;
+  late PageController _pageController;
+  int _previousHallsLength = 0;
+  bool _isLoadingPositions = true; // Флаг для отслеживания загрузки
 
   @override
   void initState() {
     super.initState();
     _initHiveAndLoadPositions();
+    _notificationHandler = NotificationHandler();
+    _pageController = PageController(initialPage: _currentHallIndex);
   }
 
   Future<void> _initHiveAndLoadPositions() async {
     _positionBox = await Hive.openBox<Offset>('table_positions');
     setState(() {
-      _tablePositions = _positionBox.toMap().cast<String, Offset>();
+      _tablePositions = _positionBox!.toMap().cast<String, Offset>();
+      _isLoadingPositions = false;
     });
   }
 
   Future<void> _savePosition(String key, Offset position) async {
-    await _positionBox.put(key, position);
-  }
-
-  String getTableKey(HallModel hall, TableModel table) {
-    return '${hall.hallId}_${table.tableId}';
+    if (_positionBox != null) {
+      await _positionBox!.put(key, position);
+    }
   }
 
   void _initializeTablePositions(HallModel hall, double screenWidth) {
+    if (_isLoadingPositions)
+      return; // Не инициализируем, пока не загрузились позиции
+
     final columns = (screenWidth / _gridSize).floor();
     int row = 0;
     int col = 0;
@@ -66,10 +79,31 @@ class _HallsScreenState extends ConsumerState<HallsScreen> {
     }
   }
 
-  int _countNotifications(HallModel hall) {
-    return hall.tables
-        .where((table) => table.hasNewOrder || table.hasGuestRequest)
-        .length;
+  void _updateTabController(int newLength) {
+    if (_tabController == null || _tabController!.length != newLength) {
+      _tabController?.dispose();
+      _tabController = TabController(
+        length: newLength,
+        vsync: this,
+        initialIndex: _currentHallIndex.clamp(0, newLength - 1),
+      );
+      _tabController!.addListener(() {
+        if (_tabController!.index != _currentHallIndex) {
+          setState(() {
+            _currentHallIndex = _tabController!.index;
+            _pageController.jumpToPage(_currentHallIndex);
+          });
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _notificationHandler.dispose();
+    _tabController?.dispose();
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -83,24 +117,13 @@ class _HallsScreenState extends ConsumerState<HallsScreen> {
       appBar: AppBar(
         title: hallsStream.when(
           data: (halls) {
-            if (halls.isEmpty) return const Text('Залы');
-            final hall = halls[_currentHallIndex];
-            final notificationCount = _countNotifications(hall);
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(hall.name),
-                if (notificationCount > 0) ...[
-                  const SizedBox(width: 8),
-                  Icon(Icons.notifications_active, color: Colors.red, size: 20),
-                  const SizedBox(width: 4),
-                  Text(
-                    '$notificationCount',
-                    style: const TextStyle(
-                        color: Colors.red, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ],
+            if (_previousHallsLength != halls.length) {
+              _updateTabController(halls.length);
+              _previousHallsLength = halls.length;
+            }
+            return HallsTabBar(
+              tabController: _tabController,
+              halls: halls,
             );
           },
           loading: () => const Text('Залы'),
@@ -113,36 +136,37 @@ class _HallsScreenState extends ConsumerState<HallsScreen> {
             return const Center(child: Text('Залы не загружены'));
           }
 
+          _notificationHandler.checkForNewNotifications(halls);
+
           _halls = halls;
           for (var hall in _halls) {
             _initializeTablePositions(hall, screenWidth);
           }
 
-          return PageView.builder(
-            onPageChanged: (index) => setState(() => _currentHallIndex = index),
-            itemCount: halls.length,
-            itemBuilder: (context, index) {
-              final hall = halls[index];
-              if (!_stackKeys.containsKey(index)) {
-                _stackKeys[index] = GlobalKey();
-              }
-
-              return HallView(
-                hall: hall,
-                gridSize: _gridSize,
-                screenWidth: screenWidth,
-                fixedHeight: fixedHeight,
-                tablePositions: _tablePositions,
-                stackKey: _stackKeys[index]!,
-                onPositionChanged: (tableId, newPosition) {
-                  final key = getTableKey(hall,
-                      hall.tables.firstWhere((t) => t.tableId == tableId));
-                  setState(() {
-                    _tablePositions[key] = newPosition;
-                  });
-                  _savePosition(key, newPosition);
-                },
-              );
+          return HallsPageView(
+            halls: halls,
+            gridSize: _gridSize,
+            screenWidth: screenWidth,
+            fixedHeight: fixedHeight,
+            tablePositions: _tablePositions,
+            stackKeys: _stackKeys,
+            pageController: _pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _currentHallIndex = index;
+                _tabController?.animateTo(index);
+              });
+            },
+            onPositionChanged: (tableId, newPosition) {
+              final key = getTableKey(
+                  halls[_currentHallIndex],
+                  halls[_currentHallIndex]
+                      .tables
+                      .firstWhere((t) => t.tableId == tableId));
+              setState(() {
+                _tablePositions[key] = newPosition;
+              });
+              _savePosition(key, newPosition);
             },
           );
         },

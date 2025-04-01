@@ -1,3 +1,4 @@
+// lib/src/features/tables/presentation/widgets/table_widget.dart
 import 'package:flutter/material.dart';
 import '../../data/models/table_model.dart';
 
