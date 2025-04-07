@@ -4,7 +4,7 @@ import '../../../tables/data/models/hall_model.dart';
 import '../../../shift/data/models/shift_status.dart';
 import '../../../shift/domain/repositories/shift_repository.dart';
 import '../../../shift/presentation/providers/shift_provider.dart';
-import '../../../tables/data/repositories/table_repository_impl.dart';
+import '../../../tables/domain/repositories/table_repository.dart';
 import '../../../tables/presentation/providers/table_provider.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/waiter.dart';
@@ -21,7 +21,8 @@ final signInUseCaseProvider = Provider<SignInUseCase>((ref) {
 
 // диспетчер", который следит за состоянием авторизации (загрузка, успех, ошибка)
 // страница LoginScreen "слушает" authProvider
-final authProvider = StateNotifierProvider<AuthNotifier, AsyncValue<AuthState>>((ref) {
+final authProvider =
+    StateNotifierProvider<AuthNotifier, AsyncValue<AuthState>>((ref) {
   return AuthNotifier(
     ref.read(signInUseCaseProvider),
     ref.read(shiftRepositoryProvider),
@@ -40,7 +41,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthState>> {
   AuthNotifier(this.signInUseCase, this.shiftRepository, this.tableRepository)
       : super(AsyncValue.data(AuthState.initial()));
 
-  Future<void> signIn(String username, String password, String restaurantId) async {
+  Future<void> signIn(
+      String username, String password, String restaurantId) async {
     if (state.isLoading) return;
     state = const AsyncValue.loading();
     try {
@@ -58,7 +60,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthState>> {
   Future<void> openShift(Waiter waiter, String restaurantId) async {
     state = const AsyncValue.loading();
     try {
-      final shiftStatus = await shiftRepository.openShift(waiter.id, restaurantId);
+      final shiftStatus =
+          await shiftRepository.openShift(waiter.id, restaurantId);
       state = AsyncValue.data(AuthState.loggedIn(waiter, shiftStatus));
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
@@ -69,7 +72,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthState>> {
     state = const AsyncValue.loading();
     try {
       final currentState = state.value;
-      final halls = await tableRepository.getHalls(restaurantId, waiter.id); // Используем TableRepository
+      final halls = await tableRepository.getHalls(
+          restaurantId, waiter.id); // Используем TableRepository
       final updatedShiftStatus = ShiftStatus(
         success: currentState?.shiftStatus?.success ?? true,
         shiftOpen: currentState?.shiftStatus?.shiftOpen ?? false,
@@ -85,7 +89,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthState>> {
   Future<void> refreshHalls(Waiter waiter, String restaurantId) async {
     try {
       final currentState = state.value;
-      final halls = await tableRepository.getHalls(restaurantId, waiter.id); // Используем TableRepository
+      final halls = await tableRepository.getHalls(
+          restaurantId, waiter.id); // Используем TableRepository
       final updatedShiftStatus = ShiftStatus(
         success: currentState?.shiftStatus?.success ?? true,
         shiftOpen: currentState?.shiftStatus?.shiftOpen ?? false,

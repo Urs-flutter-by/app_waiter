@@ -8,10 +8,9 @@ class TableModel {
   final bool isOwn;
   final bool hasNewOrder;
   final bool hasGuestRequest;
-
-  // для позиционирования
-  // double x; // Позиция по X
-  // double y; // Позиция по Y
+  final bool hasInProgressOrder; // Новое поле
+  final bool hasInProgressRequest; // Новое поле
+  final int capacity;
 
   TableModel({
     required this.tableId,
@@ -19,32 +18,12 @@ class TableModel {
     required this.isOwn,
     required this.hasNewOrder,
     required this.hasGuestRequest,
-    // Начальная позиция
-    // this.x = 0.0,
-    // this.y = 0.0,
+    required this.hasInProgressOrder,
+    required this.hasInProgressRequest,
+    required this.capacity,
   });
 
-  factory TableModel.fromJson(Map<String, dynamic> json) {
-    return TableModel(
-      tableId: json['tableId'],
-      status: json['status'],
-      isOwn: json['isOwn'],
-      hasNewOrder: json['hasNewOrder'],
-      hasGuestRequest: json['hasGuestRequest'],
-      // x: json['x']?.toDouble() ?? 0.0,
-      // y: json['y']?.toDouble() ?? 0.0,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'tableId': tableId,
-      'status': status,
-      'isOwn': isOwn,
-      'hasNewOrder': hasNewOrder,
-      'hasGuestRequest': hasGuestRequest,
-      // 'x': x,
-      // 'y': y,
-    };
-  }
+  factory TableModel.fromJson(Map<String, dynamic> json) => _$TableModelFromJson(json);
+  Map<String, dynamic> toJson() => _$TableModelToJson(this);
 }
+
