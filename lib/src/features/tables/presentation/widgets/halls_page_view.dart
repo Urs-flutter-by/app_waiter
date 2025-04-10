@@ -15,6 +15,7 @@ class HallsPageView extends StatelessWidget {
   final PageController pageController;
   final ValueChanged<int> onPageChanged;
   final Function(String, Offset) onPositionChanged;
+  final Function(TableModel) onTableTap; //
 
   const HallsPageView({
     super.key,
@@ -27,6 +28,7 @@ class HallsPageView extends StatelessWidget {
     required this.pageController,
     required this.onPageChanged,
     required this.onPositionChanged,
+    required this.onTableTap,
   });
 
   String getTableKey(HallModel hall, TableModel table) {
@@ -53,6 +55,7 @@ class HallsPageView extends StatelessWidget {
           tablePositions: tablePositions,
           stackKey: stackKeys[index]!,
           onPositionChanged: onPositionChanged,
+          onTableTap: onTableTap,
         );
       },
     );

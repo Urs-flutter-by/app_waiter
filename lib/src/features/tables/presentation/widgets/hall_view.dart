@@ -14,6 +14,7 @@ class HallView extends StatelessWidget {
   final Map<String, Offset> tablePositions;
   final GlobalKey stackKey;
   final Function(String, Offset) onPositionChanged;
+  final Function(TableModel) onTableTap;
 
   const HallView({
     super.key,
@@ -24,6 +25,7 @@ class HallView extends StatelessWidget {
     required this.tablePositions,
     required this.stackKey,
     required this.onPositionChanged,
+    required this.onTableTap,
   });
 
   String getTableKey(TableModel table) {
@@ -46,8 +48,10 @@ class HallView extends StatelessWidget {
             DragTarget<TableModel>(
               onAcceptWithDetails: (details) {
                 final table = details.data;
-                final stackRenderBox = stackKey.currentContext!.findRenderObject() as RenderBox;
-                final localOffset = stackRenderBox.globalToLocal(details.offset);
+                final stackRenderBox =
+                    stackKey.currentContext!.findRenderObject() as RenderBox;
+                final localOffset =
+                    stackRenderBox.globalToLocal(details.offset);
 
                 final newX = (localOffset.dx / gridSize).round() * gridSize;
                 final newY = (localOffset.dy / gridSize).round() * gridSize;
@@ -63,7 +67,9 @@ class HallView extends StatelessWidget {
                     .map((entry) => entry.value)
                     .toList();
 
-                if (!occupiedPositions.any((pos) => pos == newPosition && pos != tablePositions[currentTableKey])) {
+                if (!occupiedPositions.any((pos) =>
+                    pos == newPosition &&
+                    pos != tablePositions[currentTableKey])) {
                   onPositionChanged(table.tableId, newPosition);
                 }
               },
@@ -86,9 +92,16 @@ class HallView extends StatelessWidget {
                 top: position.dy + offsetY, // Смещаем вниз
                 child: Draggable<TableModel>(
                   data: table,
-                  feedback: TableWidget(table: table, isDragging: true),
+                  feedback: TableWidget(
+                    table: table,
+                    isDragging: true,
+                    onTap: () {},
+                  ),
                   childWhenDragging: const SizedBox.shrink(),
-                  child: TableWidget(table: table),
+                  child: TableWidget(
+                    table: table,
+                    onTap: () => onTableTap(table),
+                  ),
                 ),
               );
             }),

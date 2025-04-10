@@ -1,3 +1,4 @@
+import 'package:basic_template/src/features/tables/presentation/pages/table_request_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -167,6 +168,14 @@ class _HallsScreenState extends ConsumerState<HallsScreen>
                 _tablePositions[key] = newPosition;
               });
               _savePosition(key, newPosition);
+            },
+            onTableTap: (table) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TableRequestScreen(table: table),
+                ),
+              );
             },
           );
         },

@@ -5,7 +5,6 @@ import '../../../orders/data/models/order_model.dart';
 import '../../../orders/presentation/providers/order_provider.dart';
 import '../providers/halls_provider.dart';
 
-
 class OrderSection extends StatelessWidget {
   final String tableId;
   final bool hasNewOrder;

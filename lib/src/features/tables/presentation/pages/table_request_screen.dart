@@ -1,11 +1,10 @@
 // lib/src/features/tables/presentation/pages/table_request_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../data/models/table_model.dart';
 import '../widgets/table_info_widget.dart';
 import '../widgets/request_section.dart';
 import '../widgets/order_section.dart';
-
+import '../../data/models/table_model.dart';
 
 class TableRequestScreen extends ConsumerWidget {
   final TableModel table;

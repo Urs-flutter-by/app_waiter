@@ -1,10 +1,8 @@
 // lib/src/features/tables/presentation/widgets/request_section.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../../requests/presentation/providers/waiter_request_provider.dart';
 import '../providers/halls_provider.dart';
-
 
 class RequestSection extends StatelessWidget {
   final String tableId;
@@ -75,7 +73,7 @@ class RequestSection extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Время: ${request.createdAt.toString()}',
+                          'Время: ${request.createdAt?.toString() ?? 'Не указано'}',
                           style: const TextStyle(fontSize: 14, color: Colors.grey),
                         ),
                       ],
