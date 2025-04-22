@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-
 import '../../../../core/data/repositories/base_repository.dart';
 import '../../data/models/hall_model.dart';
 import '../../domain/repositories/table_repository.dart';

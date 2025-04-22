@@ -1,10 +1,11 @@
 // lib/src/features/requests/data/models/waiter_request.dart
 import 'package:json_annotation/json_annotation.dart';
+import '../../../../core/data/json_serializable.dart';
 
 part 'waiter_request.g.dart';
 
 @JsonSerializable()
-class WaiterRequest {
+class WaiterRequest implements  ToJsonSerializable{
   final String requestId;
   final String message;
   final String status;
@@ -27,6 +28,8 @@ class WaiterRequest {
   });
 
   factory WaiterRequest.fromJson(Map<String, dynamic> json) => _$WaiterRequestFromJson(json);
+  /// неуверен насчет @override
+  @override
   Map<String, dynamic> toJson() => _$WaiterRequestToJson(this);
 
   static DateTime _dateTimeFromJson(String timestamp) => DateTime.parse(timestamp);

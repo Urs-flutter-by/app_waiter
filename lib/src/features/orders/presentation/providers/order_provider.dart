@@ -6,11 +6,16 @@ import '../../data/repositories/order_repository_impl.dart';
 import '../../domain/repositories/order_repository.dart';
 
 
+
 final orderRepositoryProvider = Provider<OrderRepository>((ref) {
   return OrderRepositoryImpl(dio: Dio());
 });
+
+
 
 final orderProvider = FutureProvider.family<OrderModel?, String>((ref, tableId) async {
   final repository = ref.read(orderRepositoryProvider);
   return await repository.getOrder(tableId);
 });
+
+
