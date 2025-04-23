@@ -1,4 +1,4 @@
-// lib/src/features/tables/presentation/pages/table_request_screen.dart
+// // lib/src/features/tables/presentation/pages/table_request_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/widgets/action_section.dart';
@@ -6,6 +6,7 @@ import '../../../orders/data/models/order_model.dart';
 import '../../../orders/presentation/providers/order_provider.dart';
 import '../../../requests/data/models/waiter_request.dart';
 import '../../../requests/presentation/providers/waiter_request_provider.dart';
+import '../providers/halls_provider.dart';
 import '../widgets/table_info_widget.dart';
 import '../../data/models/table_model.dart';
 
@@ -53,9 +54,32 @@ class _TableRequestScreenContentState
 
   @override
   Widget build(BuildContext context) {
+    final hallsAsync = widget.ref.watch(hallsStreamProvider);
+
+    // Ищем название зала
+    String hallName = 'Зал не указан';
+    hallsAsync.when(
+      data: (halls) {
+        for (final hall in halls) {
+          if (hall.tables
+              .any((table) => table.tableId == widget.table.tableId)) {
+            hallName = hall.name;
+            break;
+          }
+        }
+      },
+      loading: () {
+        hallName = 'Загрузка...';
+      },
+      error: (error, stack) {
+        hallName = 'Ошибка';
+
+      },
+    );
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Стол №${widget.table.tableId.replaceAll('table_', '')}'),
+        title: Text(hallName),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -100,7 +124,7 @@ class _TableRequestScreenContentState
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Время: ${request.createdAt?.toString() ?? 'Не указано'}',
+                          'Время: ${request.createdAt.toString() ?? 'Не указано'}',
                           style:
                               const TextStyle(fontSize: 14, color: Colors.grey),
                         ),
@@ -120,9 +144,8 @@ class _TableRequestScreenContentState
                 provider: orderProvider(widget.table.tableId),
                 repository: widget.ref.read(orderRepositoryProvider),
                 itemBuilder: (order) => ListView.builder(
-                  shrinkWrap: true, // Занимает только необходимое пространство
-                  physics:
-                      const NeverScrollableScrollPhysics(), // Отключаем прокрутку ListView
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: order.items.length,
                   itemBuilder: (context, index) {
                     final item = order.items[index];
