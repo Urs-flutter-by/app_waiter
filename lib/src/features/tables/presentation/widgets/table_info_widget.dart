@@ -1,7 +1,7 @@
 // lib/src/features/tables/presentation/widgets/table_info_widget.dart
 import 'package:flutter/material.dart';
 import '../../data/models/table_model.dart';
-import 'guest_info_screen.dart';
+import '../pages/guest_info_screen.dart';
 
 class TableInfoWidget extends StatelessWidget {
   final TableModel table;

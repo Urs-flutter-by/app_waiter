@@ -1,6 +1,6 @@
 // lib/src/features/orders/data/models/order_item.dart
 import 'package:json_annotation/json_annotation.dart';
-import 'dish_model.dart';
+import '../../../menu/data/models/dish_model.dart';
 
 
 part 'order_item.g.dart';

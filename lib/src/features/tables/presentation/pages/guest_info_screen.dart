@@ -1,6 +1,6 @@
 // lib/src/features/tables/presentations/pages/guest_info_screen.dart
 import 'package:flutter/material.dart';
-import '../pages/add_guest_order_screen.dart';
+import 'add_guest_order_screen.dart';
 
 class GuestInfoScreen extends StatelessWidget {
   final String tableId;

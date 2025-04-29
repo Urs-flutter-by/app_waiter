@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:basic_template/src/core/utils/logger.dart'; // Настройка логгера
-import 'package:hive/hive.dart';
+//import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 //import '../features/auth/presentation/pages/login_screen.dart';
+import '../features/menu/data/models/dish_model.dart';
+import '../features/orders/data/models/selected_dish.dart';
 import '../features/qr_scan/presentation/pages/qr_scan_screen.dart';
 //import 'app.dart';
+
+// Глобальная переменная для бокса category_order
+late Box<String> categoryOrderBox;
 
 Future<void> bootstrap() async {
   // 1. Инициализация FlutterBinding
@@ -33,10 +38,17 @@ Future<void> initializeServices() async {
   // Инициализируем Hive
   await Hive.initFlutter();
   Hive.registerAdapter(OffsetAdapter());
+  Hive.registerAdapter(DishModelAdapter());
+  Hive.registerAdapter(SelectedDishAdapter());
+
+  // Открываем бокс для порядка категорий
+  categoryOrderBox = await Hive.openBox<String>('category_order'); // Изменили тип на Box<String>
+  // Очищаем старые данные (для миграции)
+  // await categoryOrderBox.clear();
+  AppLogger.logInfo('Hive initialized with categoryOrderBox: ${categoryOrderBox.isOpen}');
 
   //await Hive.openBox('positions'); // Открываем хранилище
 
-  AppLogger.logInfo('Hive initialized');
 }
 
 class MyApp extends StatelessWidget {
